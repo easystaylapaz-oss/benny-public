@@ -31,7 +31,7 @@ client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 # --- Rate limiting simple: 5 mensajes por sesión ---
 # En producción, usar Redis. Por ahora, dict en memoria.
-session_counts: dict[str, dict] = {}
+session_counts = {}  # type: dict
 MAX_MESSAGES_PER_SESSION = 5  # límite de pruebas
 
 # --- System prompt blindado de Benny Public ---

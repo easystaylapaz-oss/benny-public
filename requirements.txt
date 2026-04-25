@@ -5,4 +5,4 @@ anthropic==0.39.0
 pydantic==2.9.0
 supabase==2.9.1
 python-dotenv==1.0.1
-langsmith>=0.1.0
+langsmith==0.1.147

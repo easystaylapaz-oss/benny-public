@@ -16,6 +16,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from anthropic import Anthropic
 from supabase import create_client, Client
+# LangSmith tracing — observability for every guest interaction
+from langsmith import traceable
+from langsmith.wrappers import wrap_anthropic
 
 # ============================================================
 # CONFIG
@@ -31,7 +34,8 @@ app.add_middleware(
 )
 
 # Clientes
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+# wrap_anthropic auto-traces every Anthropic API call with token counts, latency, model name
+client = wrap_anthropic(Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"]))
 supabase: Client = create_client(
     os.environ["SUPABASE_URL"],
     os.environ["SUPABASE_SERVICE_KEY"]
@@ -269,6 +273,7 @@ def extract_contact_info(message: str) -> dict:
     return info
 
 
+@traceable(name="create_escalation_ticket", run_type="tool")
 def create_ticket(
     session_id: str,
     original_message: str,
@@ -377,6 +382,7 @@ async def health():
 
 
 @app.post("/chat", response_model=ChatResponse)
+@traceable(name="benny_public_chat", run_type="chain")
 async def chat(msg: ChatMessage):
     # Session management
     session = msg.session_id or str(uuid.uuid4())

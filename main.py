@@ -16,9 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from anthropic import Anthropic
 from supabase import create_client, Client
-# LangSmith tracing — observability for every guest interaction
+# LangSmith tracing — observability for every guest interaction (decorator-only, version-safe)
 from langsmith import traceable
-from langsmith.wrappers import wrap_anthropic
 
 # ============================================================
 # CONFIG
@@ -34,8 +33,8 @@ app.add_middleware(
 )
 
 # Clientes
-# wrap_anthropic auto-traces every Anthropic API call with token counts, latency, model name
-client = wrap_anthropic(Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"]))
+# Anthropic client — calls are traced via @traceable decorator on parent functions
+client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 supabase: Client = create_client(
     os.environ["SUPABASE_URL"],
     os.environ["SUPABASE_SERVICE_KEY"]
